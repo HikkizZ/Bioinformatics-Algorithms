@@ -2,6 +2,9 @@
 
 ## Description
 
-## Authors:
+## Requirements
+
+## Authors
+
 - Felipe Miranda Rebolledo - HikkizZ
 - Patricia Gonzalez Caamaño
