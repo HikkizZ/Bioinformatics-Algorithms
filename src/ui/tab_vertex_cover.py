@@ -16,17 +16,20 @@ def render_vertex_cover_tab():
                 "**Aristas:** [('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('C', 'E')]").classes('text-sm')
 
     status_label = ui.label().classes('text-green-500')
-
     resultado_texto = ui.markdown('').classes('text-white')
     resultado_texto.set_visibility(False)
 
-    # BOTONES
-    btn_calcular = ui.button('CALCULAR VERTEX COVER').props('color=primary')
-    btn_mostrar = ui.button('MOSTRAR VERTEX COVER').props('color=primary').classes('mt-2')
+    btn_calcular = ui.button('CALCULAR VERTEX COVER').props('color=primary').classes('mt-4')
+    with ui.row().classes('gap-4 mt-2'):
+        btn_mostrar = ui.button('MOSTRAR VERTEX COVER').props('color=primary')
+        btn_fuerza_bruta = ui.button('MOSTRAR SOLO FUERZA BRUTA').props('color=green')
+        btn_greedy = ui.button('MOSTRAR SOLO GREEDY').props('color=orange')
+
     btn_limpiar = ui.button('LIMPIAR BÚSQUEDA').props('color=secondary').classes('mt-2')
 
-    btn_mostrar.set_visibility(False)
-    btn_limpiar.set_visibility(False)
+    # Ocultar todos inicialmente
+    for btn in [btn_mostrar, btn_fuerza_bruta, btn_greedy, btn_limpiar]:
+        btn.set_visibility(False)
 
     def mostrar_modal_con_imagen(fig):
         buffer = BytesIO()
@@ -51,19 +54,19 @@ def render_vertex_cover_tab():
 
     def calcular():
         try:
-            fig, fuerza_bruta, greedy = calcular_vertex_cover_desde_entrada(nodos_input.value, aristas_input.value)
+            fig, bf, greedy = calcular_vertex_cover_desde_entrada(nodos_input.value, aristas_input.value)
 
             resultado_texto.content = f"""### == Resultados de Vertex Cover ==
-**Fuerza Bruta**: {fuerza_bruta}  
+**Fuerza Bruta**: {bf}  
 **Aproximación Greedy**: {greedy}"""
             resultado_texto.set_visibility(True)
 
-            status_label.text = '✅ Resultado calculado correctamente.'
+            status_label.text = '✅ Cálculo realizado correctamente.'
             status_label.classes('text-green-500')
 
             btn_calcular.set_visibility(False)
-            btn_mostrar.set_visibility(True)
-            btn_limpiar.set_visibility(True)
+            for btn in [btn_mostrar, btn_fuerza_bruta, btn_greedy, btn_limpiar]:
+                btn.set_visibility(True)
 
         except Exception as e:
             resultado_texto.set_visibility(False)
@@ -75,22 +78,66 @@ def render_vertex_cover_tab():
             fig, _, _ = calcular_vertex_cover_desde_entrada(nodos_input.value, aristas_input.value)
             mostrar_modal_con_imagen(fig)
         except Exception as e:
-            ui.notify(f"Error: {e}", type='negative')
+            ui.notify(f"Error al mostrar: {e}", type='negative')
+
+    def mostrar_solo_fuerza_bruta():
+        try:
+            _, bf_cover, _ = calcular_vertex_cover_desde_entrada(nodos_input.value, aristas_input.value)
+            import networkx as nx
+            import matplotlib.pyplot as plt
+
+            nodos = [n.strip() for n in nodos_input.value.split(',')]
+            aristas = eval(aristas_input.value)
+            G = nx.Graph()
+            G.add_nodes_from(nodos)
+            G.add_edges_from(aristas)
+
+            pos = nx.spring_layout(G, seed=42)
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.set_title("Fuerza Bruta (Óptimo)")
+            nx.draw(G, pos, ax=ax, with_labels=True, node_color='lightblue', edge_color='gray', node_size=1000)
+            nx.draw_networkx_nodes(G, pos, nodelist=bf_cover, ax=ax, node_color='green', node_size=1200)
+
+            mostrar_modal_con_imagen(fig)
+        except Exception as e:
+            ui.notify(f"Error en fuerza bruta: {e}", type='negative')
+
+    def mostrar_solo_greedy():
+        try:
+            _, _, greedy_cover = calcular_vertex_cover_desde_entrada(nodos_input.value, aristas_input.value)
+            import networkx as nx
+            import matplotlib.pyplot as plt
+
+            nodos = [n.strip() for n in nodos_input.value.split(',')]
+            aristas = eval(aristas_input.value)
+            G = nx.Graph()
+            G.add_nodes_from(nodos)
+            G.add_edges_from(aristas)
+
+            pos = nx.spring_layout(G, seed=42)
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.set_title("Greedy (Aproximado)")
+            nx.draw(G, pos, ax=ax, with_labels=True, node_color='lightblue', edge_color='gray', node_size=1000)
+            nx.draw_networkx_nodes(G, pos, nodelist=greedy_cover, ax=ax, node_color='orange', node_size=1200)
+
+            mostrar_modal_con_imagen(fig)
+        except Exception as e:
+            ui.notify(f"Error en greedy: {e}", type='negative')
 
     def limpiar():
         nodos_input.value = ''
         aristas_input.value = ''
         resultado_texto.set_visibility(False)
-        btn_mostrar.set_visibility(False)
-        btn_limpiar.set_visibility(False)
-        btn_calcular.set_visibility(True)
         status_label.text = ''
+        btn_calcular.set_visibility(True)
+        for btn in [btn_mostrar, btn_fuerza_bruta, btn_greedy, btn_limpiar]:
+            btn.set_visibility(False)
 
-    # Conectar eventos
     btn_calcular.on_click(calcular)
     btn_mostrar.on_click(mostrar)
+    btn_fuerza_bruta.on_click(mostrar_solo_fuerza_bruta)
+    btn_greedy.on_click(mostrar_solo_greedy)
     btn_limpiar.on_click(limpiar)
 
-    # Reaparecer botón calcular si el usuario cambia campos
     nodos_input.on('input', lambda _: btn_calcular.set_visibility(True))
     aristas_input.on('input', lambda _: btn_calcular.set_visibility(True))
