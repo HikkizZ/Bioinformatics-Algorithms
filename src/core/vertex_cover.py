@@ -60,7 +60,7 @@ def calcular_vertex_cover_desde_entrada(nodos_str: str, aristas_str: str):
         nx.draw_networkx_nodes(G, pos, nodelist=greedy_cover, ax=ax2, node_color='orange', node_size=1200)
 
         plt.tight_layout()
-        return fig
+        return fig, bf_cover, greedy_cover
 
     except Exception as e:
         raise ValueError(f"Error al procesar los datos: {e}")
