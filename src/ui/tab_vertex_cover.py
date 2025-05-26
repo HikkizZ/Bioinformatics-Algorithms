@@ -16,9 +16,17 @@ def render_vertex_cover_tab():
                 "**Aristas:** [('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('C', 'E')]").classes('text-sm')
 
     status_label = ui.label().classes('text-green-500')
-    resultado_texto = ui.label().classes('text-white')
 
-    calcular_btn = ui.button('CALCULAR VERTEX COVER').props('color=primary').classes('mt-4')
+    resultado_texto = ui.markdown('').classes('text-white')
+    resultado_texto.set_visibility(False)
+
+    # BOTONES
+    btn_calcular = ui.button('CALCULAR VERTEX COVER').props('color=primary')
+    btn_mostrar = ui.button('MOSTRAR VERTEX COVER').props('color=primary').classes('mt-2')
+    btn_limpiar = ui.button('LIMPIAR BÚSQUEDA').props('color=secondary').classes('mt-2')
+
+    btn_mostrar.set_visibility(False)
+    btn_limpiar.set_visibility(False)
 
     def mostrar_modal_con_imagen(fig):
         buffer = BytesIO()
@@ -41,36 +49,48 @@ def render_vertex_cover_tab():
 
         dialog.open()
 
-    def ejecutar_calculo():
+    def calcular():
         try:
-            fig, bf_cover, greedy_cover = calcular_vertex_cover_desde_entrada(nodos_input.value, aristas_input.value)
-            resultado_texto.text = f"== Resultados de Vertex Cover ==\nFuerza Bruta: {tuple(bf_cover)}\nAproximación Greedy: {set(greedy_cover)}"
-            status_label.text = '✅ Cálculo realizado correctamente.'
+            fig, fuerza_bruta, greedy = calcular_vertex_cover_desde_entrada(nodos_input.value, aristas_input.value)
+
+            resultado_texto.content = f"""### == Resultados de Vertex Cover ==
+**Fuerza Bruta**: {fuerza_bruta}  
+**Aproximación Greedy**: {greedy}"""
+            resultado_texto.set_visibility(True)
+
+            status_label.text = '✅ Resultado calculado correctamente.'
             status_label.classes('text-green-500')
-            calcular_btn.set_visibility(False)  # Ocultar el botón
-            mostrar_btn.set_visibility(True)    # Mostrar botón de mostrar grafo
+
+            btn_calcular.set_visibility(False)
+            btn_mostrar.set_visibility(True)
+            btn_limpiar.set_visibility(True)
+
         except Exception as e:
+            resultado_texto.set_visibility(False)
             status_label.text = f"❌ Error: {str(e)}"
             status_label.classes('text-red-500')
 
-    calcular_btn.on('click', ejecutar_calculo)
-
-    def ejecutar_mostrar():
+    def mostrar():
         try:
             fig, _, _ = calcular_vertex_cover_desde_entrada(nodos_input.value, aristas_input.value)
             mostrar_modal_con_imagen(fig)
         except Exception as e:
-            ui.notify(f"Error al mostrar el grafo: {e}", type='negative')
+            ui.notify(f"Error: {e}", type='negative')
 
-    mostrar_btn = ui.button('MOSTRAR VERTEX COVER', on_click=ejecutar_mostrar).props('color=primary').classes('mt-2')
-    mostrar_btn.set_visibility(False)
+    def limpiar():
+        nodos_input.value = ''
+        aristas_input.value = ''
+        resultado_texto.set_visibility(False)
+        btn_mostrar.set_visibility(False)
+        btn_limpiar.set_visibility(False)
+        btn_calcular.set_visibility(True)
+        status_label.text = ''
 
-    # Restaurar visibilidad del botón calcular si se cambia la entrada
-    def reactivar_calculo(_=None):
-        calcular_btn.set_visibility(True)
-        mostrar_btn.set_visibility(False)
-        resultado_texto.text = ""
-        status_label.text = ""
+    # Conectar eventos
+    btn_calcular.on_click(calcular)
+    btn_mostrar.on_click(mostrar)
+    btn_limpiar.on_click(limpiar)
 
-    nodos_input.on('update:model-value', reactivar_calculo)
-    aristas_input.on('update:model-value', reactivar_calculo)
+    # Reaparecer botón calcular si el usuario cambia campos
+    nodos_input.on('input', lambda _: btn_calcular.set_visibility(True))
+    aristas_input.on('input', lambda _: btn_calcular.set_visibility(True))
