@@ -7,6 +7,9 @@ def render_permutations_tab():
     entrada = ui.input('Ingresa una secuencia (máximo 6 caracteres)').props('type=text').classes('w-1/2')
     resultado = ui.markdown('').classes('mt-4 text-sm')
 
+    boton_limpiar = ui.button('LIMPIAR BÚSQUEDA', on_click=lambda: None).props('color=secondary').classes('mt-2')
+    boton_limpiar.set_visibility(False)  # Ocultar inicialmente
+
     def comparar():
         secuencia = entrada.value.strip()
 
@@ -52,6 +55,15 @@ def render_permutations_tab():
             f'- Itertools: **{cantidad_iter}** permutaciones en **{tiempo_iter:.4f} ms**\n\n'
             f'{comentario}'
         )
+
+        boton_limpiar.set_visibility(True)  # Mostrar botón
+
+    def limpiar():
+        entrada.value = ''
+        resultado.set_content('')
+        boton_limpiar.set_visibility(False)
+
+    boton_limpiar.on_click(limpiar)
 
     ui.button('COMPARAR ALGORITMOS', on_click=comparar).props('color=primary').classes('mt-4')
 
