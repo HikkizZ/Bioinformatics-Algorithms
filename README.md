@@ -7,4 +7,4 @@
 ## Authors
 
 - Felipe Miranda Rebolledo - HikkizZ
-- Patricia Gonzalez Caamaño
+- Patricia Gonzalez Caamaño - Patty
