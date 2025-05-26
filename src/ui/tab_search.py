@@ -1,17 +1,30 @@
-# lab 6 (buscar secuencia)
-
 from nicegui import ui
 from src.core.search import buscar_secuencia
 
 def render_search_tab():
-    inicio = ui.input('Secuencia inicial (ej: 1234)').props('maxlength=6')
-    objetivo = ui.input('Secuencia objetivo').props('maxlength=6')
+    ui.label('Buscar una Secuencia Objetivo entre Permutaciones').classes('text-2xl font-bold mb-6')
 
-    def buscar():
-        pasos, encontrado = buscar_secuencia(inicio.value, objetivo.value)
-        if encontrado:
-            ui.notify(f'Secuencia encontrada en {pasos} pasos')
+    secuencia_inicial = ui.input('Secuencia Inicial (máx. 6 caracteres)').props('type=text').classes('w-1/2')
+    secuencia_objetivo = ui.input('Secuencia Objetivo').props('type=text').classes('w-1/2')
+
+    resultado = ui.label().classes('mt-4 text-lg')
+
+    def al_buscar():
+        pasos, encontrada = buscar_secuencia(secuencia_inicial.value.strip(), secuencia_objetivo.value.strip())
+        if encontrada:
+            resultado.text = f'Secuencias necesarias hasta encontrar objetivo: {pasos}'
         else:
-            ui.notify('Secuencia no encontrada')
+            resultado.text = 'La secuencia objetivo no fue encontrada.'
 
-    ui.button('Buscar secuencia', on_click=buscar)
+    ui.button('BUSCAR SECUENCIA', on_click=al_buscar).classes('mt-4')
+
+    # Bloque de ejemplo para guiar al usuario
+    ui.label('Ejemplo de uso:').classes('text-lg font-bold mt-6')
+    with ui.row():
+        ui.label('Secuencia Inicial:').classes('font-semibold')
+        ui.label('abc123').classes('italic')
+    with ui.row():
+        ui.label('Secuencia Objetivo:').classes('font-semibold')
+        ui.label('1a2b3c').classes('italic')
+
+    ui.label('Nota: ambas secuencias deben tener los mismos caracteres, pero en distinto orden.').classes('mt-2 italic')
