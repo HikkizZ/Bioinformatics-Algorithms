@@ -16,18 +16,25 @@ def render_vertex_cover_tab():
                 "**Aristas:** [('A', 'B'), ('A', 'C'), ('B', 'D'), ('C', 'D'), ('C', 'E')]").classes('text-sm')
 
     status_label = ui.label().classes('text-green-500')
-    resultado_texto = ui.markdown('').classes('text-white')
-    resultado_texto.set_visibility(False)
 
-    btn_calcular = ui.button('CALCULAR VERTEX COVER').props('color=primary').classes('mt-4')
-    with ui.row().classes('gap-4 mt-2'):
-        btn_mostrar = ui.button('MOSTRAR VERTEX COVER').props('color=primary')
-        btn_fuerza_bruta = ui.button('MOSTRAR SOLO FUERZA BRUTA').props('color=green')
-        btn_greedy = ui.button('MOSTRAR SOLO GREEDY').props('color=orange')
+    # Resultado dentro de tarjeta estilizada
+    with ui.card().tight().classes('w-full bg-gray-900 text-white my-4') as resultado_card:
+        resultado_texto = ui.markdown('').classes('text-white text-md')
+    resultado_card.set_visibility(False)
 
-    btn_limpiar = ui.button('LIMPIAR BÚSQUEDA').props('color=secondary').classes('mt-2')
+    # BOTONES
+    with ui.row().classes('items-center gap-4 mt-4'):
+        btn_calcular = ui.button('🚀 Calcular Vertex Cover').props('color=primary')
 
-    # Ocultar todos inicialmente
+    with ui.row().classes('items-center gap-3 mt-2'):
+        btn_mostrar = ui.button('📊 Ver Ambos').props('color=primary')
+        btn_fuerza_bruta = ui.button('🟢 Ver Fuerza Bruta').props('color=green')
+        btn_greedy = ui.button('🟠 Ver Greedy').props('color=orange')
+
+    with ui.row().classes('mt-4'):
+        btn_limpiar = ui.button('🧹 Limpiar Búsqueda').props('color=secondary')
+
+    # Ocultar botones al inicio
     for btn in [btn_mostrar, btn_fuerza_bruta, btn_greedy, btn_limpiar]:
         btn.set_visibility(False)
 
@@ -47,8 +54,8 @@ def render_vertex_cover_tab():
                 ui.label('Vertex Cover').classes('text-xl font-bold mb-4')
                 ui.image(image_url).classes('max-w-full max-h-[65vh] object-contain overflow-auto')
                 with ui.row().classes('justify-center mt-4'):
-                    ui.button('DESCARGAR COMO PNG', on_click=lambda: ui.download(src=image_url, filename='vertex_cover.png')).props('color=primary')
-                    ui.button('CERRAR', on_click=dialog.close).props('color=secondary')
+                    ui.button('📥 Descargar PNG', on_click=lambda: ui.download(src=image_url, filename='vertex_cover.png')).props('color=primary')
+                    ui.button('❌ Cerrar', on_click=dialog.close).props('color=secondary')
 
         dialog.open()
 
@@ -56,10 +63,10 @@ def render_vertex_cover_tab():
         try:
             fig, bf, greedy = calcular_vertex_cover_desde_entrada(nodos_input.value, aristas_input.value)
 
-            resultado_texto.content = f"""### == Resultados de Vertex Cover ==
+            resultado_texto.content = f"""### ✅ Resultados de Vertex Cover  
 **Fuerza Bruta**: {bf}  
 **Aproximación Greedy**: {greedy}"""
-            resultado_texto.set_visibility(True)
+            resultado_card.set_visibility(True)
 
             status_label.text = '✅ Cálculo realizado correctamente.'
             status_label.classes('text-green-500')
@@ -69,7 +76,7 @@ def render_vertex_cover_tab():
                 btn.set_visibility(True)
 
         except Exception as e:
-            resultado_texto.set_visibility(False)
+            resultado_card.set_visibility(False)
             status_label.text = f"❌ Error: {str(e)}"
             status_label.classes('text-red-500')
 
@@ -127,7 +134,7 @@ def render_vertex_cover_tab():
     def limpiar():
         nodos_input.value = ''
         aristas_input.value = ''
-        resultado_texto.set_visibility(False)
+        resultado_card.set_visibility(False)
         status_label.text = ''
         btn_calcular.set_visibility(True)
         for btn in [btn_mostrar, btn_fuerza_bruta, btn_greedy, btn_limpiar]:

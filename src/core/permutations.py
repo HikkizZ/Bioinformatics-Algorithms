@@ -4,7 +4,7 @@ from itertools import permutations as itertools_permutations
 def generate_permutations(seq: str) -> tuple[float, int]:
     """
     Genera todas las permutaciones posibles de una secuencia utilizando backtracking.
-    Retorna el tiempo de ejecución y el número total de permutaciones únicas.
+    Retorna el tiempo de ejecución en milisegundos y el número total de permutaciones únicas.
     """
     seen = set()
 
@@ -15,20 +15,22 @@ def generate_permutations(seq: str) -> tuple[float, int]:
         for i in range(len(s)):
             backtrack(s[:i] + s[i+1:], path + s[i])
 
-    start = time.time()
+    start = time.perf_counter()
     backtrack(seq, "")
-    end = time.time()
+    end = time.perf_counter()
 
-    return round(end - start, 4), len(seen)
+    tiempo_ms = round((end - start) * 1000, 4)
+    return tiempo_ms, len(seen)
 
 
 def generate_itertools_permutations(seq: str) -> tuple[float, int]:
     """
     Genera todas las permutaciones utilizando la biblioteca itertools.
-    Retorna el tiempo de ejecución y el número total de permutaciones generadas.
+    Retorna el tiempo de ejecución en milisegundos y el número total de permutaciones generadas.
     """
-    start = time.time()
+    start = time.perf_counter()
     perms = list(itertools_permutations(seq))
-    end = time.time()
+    end = time.perf_counter()
 
-    return round(end - start, 4), len(perms)
+    tiempo_ms = round((end - start) * 1000, 4)
+    return tiempo_ms, len(perms)

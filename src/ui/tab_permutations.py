@@ -1,54 +1,63 @@
-# lab 6
-
 from nicegui import ui
-import itertools
-import time
-
-def permutacion_basica(lista):
-    if len(lista) <= 1:
-        return [lista]
-    resultado = []
-    for i in range(len(lista)):
-        resto = lista[:i] + lista[i+1:]
-        for p in permutacion_basica(resto):
-            resultado.append([lista[i]] + p)
-    return resultado
+from src.core.permutations import generate_permutations, generate_itertools_permutations
 
 def render_permutations_tab():
-    ui.label('Generar Permutaciones de una Secuencia').classes('text-2xl font-bold mb-6')
+    ui.label('Comparación de Algoritmos de Permutaciones').classes('text-2xl font-bold mb-6')
 
     entrada = ui.input('Ingresa una secuencia (máximo 6 caracteres)').props('type=text').classes('w-1/2')
-    salida = ui.label().classes('mt-4 text-lg')
+    resultado = ui.markdown('').classes('mt-4 text-sm')
 
-    def calcular_permutaciones():
-        secuencia = list(entrada.value.strip())
+    def comparar():
+        secuencia = entrada.value.strip()
+
         if len(secuencia) > 6:
-            salida.text = 'La secuencia debe tener un máximo de 6 caracteres.'
+            resultado.set_content('❌ La secuencia debe tener un máximo de 6 caracteres.')
             return
 
-        # Algoritmo personalizado
-        inicio1 = time.time()
-        resultado1 = permutacion_basica(secuencia)
-        fin1 = time.time()
-        tiempo1 = round((fin1 - inicio1) * 1000, 3)
+        tiempo_back, cantidad_back = generate_permutations(secuencia)
+        tiempo_iter, cantidad_iter = generate_itertools_permutations(secuencia)
 
-        # itertools
-        inicio2 = time.time()
-        resultado2 = list(itertools.permutations(secuencia))
-        fin2 = time.time()
-        tiempo2 = round((fin2 - inicio2) * 1000, 3)
+        comentario = '### 🧠 Comentarios sobre los resultados\n'
 
-        salida.text = (
-            f'Permutaciones encontradas: {len(resultado2)}\n\n'
-            f'Algoritmo básico: {tiempo1} ms\n'
-            f'itertools.permutations: {tiempo2} ms'
+        if tiempo_back > tiempo_iter:
+            comentario += (
+                "**Itertools** es más rápido, ya que está optimizado en C y no verifica duplicados,\n"
+                "por lo que genera todas las permutaciones posibles de manera directa.\n\n"
+                "**Backtracking**, en cambio, realiza verificaciones adicionales para evitar duplicados,\n"
+                "lo que consume más tiempo.\n\n"
+            )
+        elif tiempo_back < tiempo_iter:
+            comentario += (
+                "**Backtracking** fue más rápido, probablemente porque la secuencia contiene duplicados,\n"
+                "y el uso de `set()` ayudó a reducir la cantidad de permutaciones generadas.\n\n"
+                "**Itertools** genera todas las combinaciones, incluidos los duplicados.\n\n"
+            )
+        else:
+            comentario += (
+                "Ambos enfoques tuvieron tiempos similares, lo que podría deberse\n"
+                "al tamaño pequeño de la secuencia o a optimizaciones internas.\n\n"
+            )
+
+        comentario += (
+            "### 🧩 Comentario general sobre ambos algoritmos\n"
+            "- `itertools` es ideal para simplicidad y velocidad en listas pequeñas sin duplicados.\n"
+            "- `backtracking` es útil cuando se requiere evitar duplicados y mayor control.\n\n"
+            "En general, si no te importan los duplicados, itertools es preferible. "
+            "Si necesitas filtrarlos, usa backtracking.\n"
         )
 
-    ui.button('GENERAR PERMUTACIONES', on_click=calcular_permutaciones).classes('mt-4')
+        resultado.set_content(
+            f'### 📊 Comparación de Algoritmos\n'
+            f'- Backtracking: **{cantidad_back}** permutaciones en **{tiempo_back:.4f} ms**\n'
+            f'- Itertools: **{cantidad_iter}** permutaciones en **{tiempo_iter:.4f} ms**\n\n'
+            f'{comentario}'
+        )
 
-    # Bloque de ejemplo
+    ui.button('COMPARAR ALGORITMOS', on_click=comparar).props('color=primary').classes('mt-4')
+
+    # Ejemplo
     ui.label('Ejemplo de uso:').classes('text-lg font-bold mt-6')
     with ui.row():
         ui.label('Secuencia:').classes('font-semibold')
-        ui.label('abc1').classes('italic')
+        ui.label('1123').classes('italic')
     ui.label('Nota: Se recomienda ingresar letras o dígitos sin espacios.').classes('mt-2 italic')
