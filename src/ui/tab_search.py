@@ -56,7 +56,7 @@ def render_search_tab():
                     ui.label(paso).classes('bg-gray-100 text-black p-2 rounded shadow-sm')
 
     with botones:
-        ui.button('BUSCAR SECUENCIA', on_click=ejecutar_busqueda).props('color=primary')
+        ui.button('🚀 BUSCAR SECUENCIA', on_click=ejecutar_busqueda).props('color=primary')
 
     # Mostrar salida abajo de los botones
     salida
