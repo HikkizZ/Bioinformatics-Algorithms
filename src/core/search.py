@@ -1,20 +1,17 @@
 from itertools import permutations
 
-def buscar_secuencia(inicial: str, objetivo: str) -> tuple[int, bool]:
-    """
-    Busca la secuencia 'objetivo' a partir de la secuencia 'inicial'
-    mediante permutaciones generadas con itertools.
-
-    Retorna:
-    - Número de pasos necesarios para encontrar la secuencia
-    - True si fue encontrada, False si no
-    """
+def buscar_secuencia_objetivo(inicial, objetivo):
     if len(inicial) > 6 or len(objetivo) > 6:
-        return 0, False
+        return {"error": "Las listas no pueden tener más de 6 elementos"}
 
-    permutaciones = permutations(inicial)
-    for i, p in enumerate(permutaciones, 1):
-        if ''.join(p) == objetivo:
-            return i, True
+    permutaciones = list(permutations(inicial))
+    pasos = 0
+    log_pasos = []
 
-    return 0, False
+    for perm in permutaciones:
+        pasos += 1
+        log_pasos.append(f"Paso {pasos}: {list(perm)}")
+        if list(perm) == objetivo:
+            return {"pasos": pasos, "permutacion": list(perm), "log_pasos": log_pasos}
+
+    return {"pasos": pasos, "permutacion": None, "log_pasos": log_pasos}
