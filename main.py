@@ -1,9 +1,7 @@
-import flet as ft
-from src.ui.main_view import main_view
+from nicegui import ui
+from src.ui.main_window import render_main_window
 
-def main(page: ft.Page):
-    page.theme_mode = ft.ThemeMode.DARK
-    main_view(page)
+render_main_window()
 
-if __name__ == "__main__":
-    ft.app(target=main)
+if __name__ in {"__main__", "__mp_main__"}:
+    ui.run(title='Bioinformatics Algorithms UBB', dark=True)
